@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>Leaderboard Overlay</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center h-screen m-0 bg-[url('amar-runde2-1024x569.jpg')] bg-cover bg-center font-sans">
+
+<!-- Admin Menü -->
+<div id="adminMenu" class="hidden fixed top-0 left-0 h-screen w-[400px] bg-black/80 text-white p-6 overflow-y-auto z-50">
+  <h2 class="text-2xl font-bold mb-4">Admin Menü</h2>
+
+  <div class="mb-4">
+    <label class="block font-bold mb-1">Punkte pro Kill</label>
+    <input type="number" id="pointsPerKill" class="w-full p-2 rounded text-black" value="1">
+  </div>
+
+  <div class="mb-4">
+    <label class="block font-bold mb-1">Punkte pro Win</label>
+    <input type="number" id="pointsPerWin" class="w-full p-2 rounded text-black" value="2">
+  </div>
+
+  <div class="mb-4">
+    <label class="block font-bold mb-1">Punkte pro Platzierung (z.B. 1:10,2:8,3:6)</label>
+    <input type="text" id="placementPoints" class="w-full p-2 rounded text-black" value="1:10,2:8,3:6">
+  </div>
+
+  <form id="playerForm" class="space-y-3">
+    <input type="text" id="name" placeholder="Spielername" class="w-full p-2 rounded text-black" required>
+    <input type="text" id="flag" placeholder="Flaggen-URL (optional)" class="w-full p-2 rounded text-black">
+    <input type="number" id="kills" placeholder="Kills" class="w-full p-2 rounded text-black" required>
+    <input type="number" id="wins" placeholder="Wins" class="w-full p-2 rounded text-black" required>
+    <button type="submit" class="bg-purple-700 hover:bg-purple-900 px-4 py-2 rounded font-bold w-full">Hinzufügen</button>
+  </form>
+</div>
+
+<!-- Leaderboard -->
+<div class="bg-[#0f1120]/80 text-white rounded-xl shadow-2xl p-6 w-[800px]">
+  <h1 class="text-5xl font-extrabold text-center mb-4">LEADERBOARD</h1>
+  <h2 class="text-2xl font-semibold text-center mb-6">GAME 2</h2>
+
+  <!-- Header -->
+  <div class="grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 text-center font-bold text-lg mb-2">
+    <div>Place</div>
+    <div>Player</div>
+    <div>Kills</div>
+    <div>Wins</div>
+    <div>Points</div>
+  </div>
+
+  <div id="leaderboard" class="space-y-2"></div>
+</div>
+
+<script>
+const adminMenu = document.getElementById("adminMenu");
+const form = document.getElementById("playerForm");
+const leaderboard = document.getElementById("leaderboard");
+const pointsPerKillInput = document.getElementById("pointsPerKill");
+const pointsPerWinInput = document.getElementById("pointsPerWin");
+const placementPointsInput = document.getElementById("placementPoints");
+
+let players = [];
+let pointsPerKill = parseInt(pointsPerKillInput.value) || 1;
+let pointsPerWin = parseInt(pointsPerWinInput.value) || 2;
+let placementPoints = {};
+let adminVisible = false;
+
+// Shortcut Shift+A+Q
+document.addEventListener("keydown", e => {
+  if(e.shiftKey && e.key.toLowerCase() === "a") document._shiftA = true;
+  if(e.shiftKey && e.key.toLowerCase() === "q" && document._shiftA){
+    adminVisible = !adminVisible;
+    adminMenu.classList.toggle("hidden", !adminVisible);
+    document._shiftA = false;
+  }
+});
+document.addEventListener("keyup", e => { if(e.key.toLowerCase()==="a") document._shiftA=false; });
+
+// Admin Einstellungen
+pointsPerKillInput.addEventListener("change", ()=>{
+  const val = parseInt(pointsPerKillInput.value);
+  if(!isNaN(val)) { pointsPerKill = val; updatePoints(); }
+});
+
+pointsPerWinInput.addEventListener("change", ()=>{
+  const val = parseInt(pointsPerWinInput.value);
+  if(!isNaN(val)) { pointsPerWin = val; updatePoints(); }
+});
+
+placementPointsInput.addEventListener("change", ()=>{
+  const val = placementPointsInput.value;
+  placementPoints = {};
+  val.split(",").forEach(item=>{
+    const [place, pts] = item.split(":").map(x=>parseInt(x));
+    if(!isNaN(place) && !isNaN(pts)) placementPoints[place] = pts;
+  });
+  updatePoints();
+});
+
+// Spieler hinzufügen
+form.addEventListener("submit", e=>{
+  e.preventDefault();
+  const name = document.getElementById("name").value;
+  const flag = document.getElementById("flag").value;
+  const kills = parseInt(document.getElementById("kills").value);
+  const wins = parseInt(document.getElementById("wins").value);
+
+  players.push({name, flag, kills, wins, points: 0});
+  updatePoints();
+  form.reset();
+});
+
+// Punkte berechnen
+function updatePoints(){
+  players.forEach(p=>{
+    p.points = (p.kills * pointsPerKill) + (p.wins * pointsPerWin);
+  });
+
+  // Sortieren nach Punkten (höchste zuerst)
+  players.sort((a,b)=>b.points - a.points);
+
+  // Platzierung vergeben
+  players.forEach((p,index)=>p.placement=index+1);
+
+  // Platzierungspunkte hinzufügen
+  players.forEach(p=>{
+    const placePts = placementPoints[p.placement] || 0;
+    p.points += placePts;
+  });
+
+  renderLeaderboard();
+}
+
+// Leaderboard rendern
+function renderLeaderboard(){
+  leaderboard.innerHTML = "";
+  players.forEach((player, idx)=>{
+    const row = document.createElement("div");
+    row.className="grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 items-center bg-[#2d2d44] rounded-lg px-3 py-2 text-center text-lg cursor-pointer";
+
+    // Farbe für Platz
+    let color = "text-white";
+    if(player.placement === 1) color = "text-yellow-400";
+    else if(player.placement === 2) color = "text-gray-400";
+    else if(player.placement === 3) color = "text-orange-500";
+
+    const flagImg = player.flag ? `<img src="${player.flag}" class="w-6 h-6 rounded-full border-2 border-yellow-400" />` : "";
+
+    row.innerHTML=`
+      <div class="${color} font-bold text-xl">${player.placement}</div>
+      <div class="flex items-center justify-start gap-2 pl-2">
+        ${flagImg}
+        <span class="font-bold">${player.name}</span>
+      </div>
+      <div>${player.kills}</div>
+      <div>${player.wins}</div>
+      <div>${player.points}</div>
+    `;
+
+    // Klick zum Bearbeiten oder Löschen
+    row.addEventListener("click", ()=>{
+      if(!adminVisible) return;
+      const action = prompt("Bearbeiten (b) oder Löschen (d)?", "b");
+      if(action === "b"){
+        const newKills = parseInt(prompt("Neue Kills:", player.kills));
+        const newWins = parseInt(prompt("Neue Wins:", player.wins));
+        if(!isNaN(newKills)) player.kills=newKills;
+        if(!isNaN(newWins)) player.wins=newWins;
+      } else if(action === "d"){
+        if(confirm(`Spieler ${player.name} wirklich löschen?`)){
+          players.splice(idx,1);
+        }
+      }
+      updatePoints();
+    });
+
+    leaderboard.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
