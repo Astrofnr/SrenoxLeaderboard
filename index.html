@@ -11,6 +11,15 @@
 <div id="adminMenu" class="hidden fixed top-0 left-0 h-screen w-[400px] bg-black/80 text-white p-6 overflow-y-auto z-50">
   <h2 class="text-2xl font-bold mb-4">Admin Menü</h2>
 
+   <div class="mb-4">
+    <h3 class="font-bold mb-2">Spielrunde auswählen</h3>
+    <button id="runde1Btn" class="bg-purple-700 hover:bg-purple-900 px-4 py-2 rounded mr-2">Runde 1</button>
+    <button id="runde2Btn" class="bg-purple-700 hover:bg-purple-900 px-4 py-2 rounded mr-2">Runde 2</button>
+    <button id="runde3Btn" class="bg-purple-700 hover:bg-purple-900 px-4 py-2 rounded mr-2">Runde 3</button>
+    <button id="finalBtn" class="bg-purple-700 hover:bg-purple-900 px-4 py-2 rounded">Final Game</button>
+  </div>
+
+  
   <div class="mb-4">
     <label class="block font-bold mb-1">Punkte pro Kill</label>
     <input type="number" id="pointsPerKill" class="w-full p-2 rounded text-black" value="1">
@@ -211,3 +220,4 @@ runde1Btn.addEventListener("click", () => changeRound("Runde 1"));
 runde2Btn.addEventListener("click", () => changeRound("Runde 2"));
 runde3Btn.addEventListener("click", () => changeRound("Runde 3"));
 finalBtn.addEventListener("click
+
