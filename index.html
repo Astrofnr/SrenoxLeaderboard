@@ -26,6 +26,17 @@
     <input type="text" id="placementPoints" class="w-full p-2 rounded text-black" value="1:10,2:8,3:6">
   </div>
 
+  <!-- Game Auswahl Buttons -->
+  <div class="mb-6">
+    <h3 class="font-bold mb-2">Runde wählen</h3>
+    <div class="flex flex-wrap gap-2">
+      <button id="runde1Btn" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded flex-1">Runde 1</button>
+      <button id="runde2Btn" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded flex-1">Runde 2</button>
+      <button id="runde3Btn" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded flex-1">Runde 3</button>
+      <button id="finalBtn" class="bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded flex-1">Final Game</button>
+    </div>
+  </div>
+
   <form id="playerForm" class="space-y-3">
     <input type="text" id="name" placeholder="Spielername" class="w-full p-2 rounded text-black" required>
     <input type="text" id="flag" placeholder="Flaggen-URL (optional)" class="w-full p-2 rounded text-black">
@@ -35,15 +46,9 @@
   </form>
 </div>
 
-<!-- Game Switch Buttons -->
-<div class="flex gap-4 mb-6">
-  <button id="game1Btn" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Game 1</button>
-  <button id="game2Btn" class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded">Game 2</button>
-</div>
-
 <!-- Leaderboard -->
 <div class="bg-[#0f1120]/80 rounded-xl shadow-2xl p-6 w-[800px] text-white">
-  <h1 id="gameTitle" class="text-5xl font-extrabold text-center mb-4">Srenox x Nasqooskampfziege - Game 1</h1>
+  <h1 id="gameTitle" class="text-5xl font-extrabold text-center mb-4">Srenox x Nasqooskampfziege - Runde 1</h1>
 
   <!-- Header -->
   <div class="grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 text-center font-bold text-lg mb-2">
@@ -66,10 +71,12 @@ const pointsPerWinInput = document.getElementById("pointsPerWin");
 const placementPointsInput = document.getElementById("placementPoints");
 const gameTitle = document.getElementById("gameTitle");
 
-const game1Btn = document.getElementById("game1Btn");
-const game2Btn = document.getElementById("game2Btn");
+const runde1Btn = document.getElementById("runde1Btn");
+const runde2Btn = document.getElementById("runde2Btn");
+const runde3Btn = document.getElementById("runde3Btn");
+const finalBtn = document.getElementById("finalBtn");
 
-let currentGame = "Game 1";
+let currentGame = "Runde 1";
 
 let players = [];
 let pointsPerKill = parseInt(pointsPerKillInput.value) || 1;
@@ -192,21 +199,15 @@ function renderLeaderboard(){
   });
 }
 
-// Game-Wechsel Buttons
-game1Btn.addEventListener("click", () => {
-  currentGame = "Game 1";
-  gameTitle.textContent = "Srenox x Nasqooskampfziege - Game 1";
+// Runde wechseln Buttons
+function changeRound(roundName) {
+  currentGame = roundName;
+  gameTitle.textContent = `Srenox x Nasqooskampfziege - ${roundName}`;
   players = [];
   updatePoints();
-});
+}
 
-game2Btn.addEventListener("click", () => {
-  currentGame = "Game 2";
-  gameTitle.textContent = "Srenox x Nasqooskampfziege - Game 2";
-  players = [];
-  updatePoints();
-});
-
-</script>
-</body>
-</html>
+runde1Btn.addEventListener("click", () => changeRound("Runde 1"));
+runde2Btn.addEventListener("click", () => changeRound("Runde 2"));
+runde3Btn.addEventListener("click", () => changeRound("Runde 3"));
+finalBtn.addEventListener("click
