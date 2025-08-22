@@ -2,10 +2,10 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8" />
-<title>Srenox x Nasqooskampfziege</title>
+<title>Leaderboard Overlay</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex items-center justify-center h-screen m-0 bg-[url('amar-runde2-1024x569.jpg')] bg-cover bg-center font-sans">
+<body class="flex flex-col items-center justify-center min-h-screen m-0 bg-[url('amar-runde2-1024x569.jpg')] bg-cover bg-center font-sans">
 
 <!-- Admin Menü -->
 <div id="adminMenu" class="hidden fixed top-0 left-0 h-screen w-[400px] bg-black/80 text-white p-6 overflow-y-auto z-50">
@@ -35,9 +35,15 @@
   </form>
 </div>
 
+<!-- Game Switch Buttons -->
+<div class="flex gap-4 mb-6">
+  <button id="game1Btn" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Game 1</button>
+  <button id="game2Btn" class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded">Game 2</button>
+</div>
+
 <!-- Leaderboard -->
-<div class="bg-[#0f1120]/80 text-white rounded-xl shadow-2xl p-6 w-[800px]">
-  <h1 class="text-5xl font-extrabold text-center mb-4">Srenox x Nasqooskampfziege</h1>
+<div class="bg-[#0f1120]/80 rounded-xl shadow-2xl p-6 w-[800px] text-white">
+  <h1 id="gameTitle" class="text-5xl font-extrabold text-center mb-4">Srenox x Nasqooskampfziege - Game 1</h1>
 
   <!-- Header -->
   <div class="grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 text-center font-bold text-lg mb-2">
@@ -48,7 +54,7 @@
     <div>Points</div>
   </div>
 
-<div id="Srenox x Nasqooskampfziege" class="space-y-2"></div>
+  <div id="leaderboard" class="space-y-2"></div>
 </div>
 
 <script>
@@ -58,6 +64,12 @@ const leaderboard = document.getElementById("leaderboard");
 const pointsPerKillInput = document.getElementById("pointsPerKill");
 const pointsPerWinInput = document.getElementById("pointsPerWin");
 const placementPointsInput = document.getElementById("placementPoints");
+const gameTitle = document.getElementById("gameTitle");
+
+const game1Btn = document.getElementById("game1Btn");
+const game2Btn = document.getElementById("game2Btn");
+
+let currentGame = "Game 1";
 
 let players = [];
 let pointsPerKill = parseInt(pointsPerKillInput.value) || 1;
@@ -65,7 +77,7 @@ let pointsPerWin = parseInt(pointsPerWinInput.value) || 2;
 let placementPoints = {};
 let adminVisible = false;
 
-// Shortcut Shift+A+Q
+// Shortcut Shift+A+Q zum Admin-Menü toggeln
 document.addEventListener("keydown", e => {
   if(e.shiftKey && e.key.toLowerCase() === "a") document._shiftA = true;
   if(e.shiftKey && e.key.toLowerCase() === "q" && document._shiftA){
@@ -77,33 +89,35 @@ document.addEventListener("keydown", e => {
 document.addEventListener("keyup", e => { if(e.key.toLowerCase()==="a") document._shiftA=false; });
 
 // Admin Einstellungen
-pointsPerKillInput.addEventListener("change", ()=>{
+pointsPerKillInput.addEventListener("change", () => {
   const val = parseInt(pointsPerKillInput.value);
   if(!isNaN(val)) { pointsPerKill = val; updatePoints(); }
 });
 
-pointsPerWinInput.addEventListener("change", ()=>{
+pointsPerWinInput.addEventListener("change", () => {
   const val = parseInt(pointsPerWinInput.value);
   if(!isNaN(val)) { pointsPerWin = val; updatePoints(); }
 });
 
-placementPointsInput.addEventListener("change", ()=>{
+placementPointsInput.addEventListener("change", () => {
   const val = placementPointsInput.value;
   placementPoints = {};
-  val.split(",").forEach(item=>{
-    const [place, pts] = item.split(":").map(x=>parseInt(x));
+  val.split(",").forEach(item => {
+    const [place, pts] = item.split(":").map(x => parseInt(x));
     if(!isNaN(place) && !isNaN(pts)) placementPoints[place] = pts;
   });
   updatePoints();
 });
 
 // Spieler hinzufügen
-form.addEventListener("submit", e=>{
+form.addEventListener("submit", e => {
   e.preventDefault();
-  const name = document.getElementById("name").value;
-  const flag = document.getElementById("flag").value;
+  const name = document.getElementById("name").value.trim();
+  const flag = document.getElementById("flag").value.trim();
   const kills = parseInt(document.getElementById("kills").value);
   const wins = parseInt(document.getElementById("wins").value);
+
+  if(!name || isNaN(kills) || isNaN(wins)) return;
 
   players.push({name, flag, kills, wins, points: 0});
   updatePoints();
@@ -112,18 +126,18 @@ form.addEventListener("submit", e=>{
 
 // Punkte berechnen
 function updatePoints(){
-  players.forEach(p=>{
+  players.forEach(p => {
     p.points = (p.kills * pointsPerKill) + (p.wins * pointsPerWin);
   });
 
   // Sortieren nach Punkten (höchste zuerst)
-  players.sort((a,b)=>b.points - a.points);
+  players.sort((a,b) => b.points - a.points);
 
   // Platzierung vergeben
-  players.forEach((p,index)=>p.placement=index+1);
+  players.forEach((p, index) => p.placement = index + 1);
 
   // Platzierungspunkte hinzufügen
-  players.forEach(p=>{
+  players.forEach(p => {
     const placePts = placementPoints[p.placement] || 0;
     p.points += placePts;
   });
@@ -134,9 +148,9 @@ function updatePoints(){
 // Leaderboard rendern
 function renderLeaderboard(){
   leaderboard.innerHTML = "";
-  players.forEach((player, idx)=>{
+  players.forEach((player, idx) => {
     const row = document.createElement("div");
-    row.className="grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 items-center bg-[#2d2d44] rounded-lg px-3 py-2 text-center text-lg cursor-pointer";
+    row.className = "grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 items-center bg-[#2d2d44] rounded-lg px-3 py-2 text-center text-lg cursor-pointer";
 
     // Farbe für Platz: Gold, Silber, Bronze, Rest Weiß
     let color = "text-white"; // Standard
@@ -146,7 +160,7 @@ function renderLeaderboard(){
 
     const flagImg = player.flag ? `<img src="${player.flag}" class="w-6 h-6 rounded-full border-2 border-yellow-400" />` : "";
 
-    row.innerHTML=`
+    row.innerHTML = `
       <div class="${color} font-bold text-xl">${player.placement}</div>
       <div class="flex items-center justify-start gap-2 pl-2">
         ${flagImg}
@@ -157,18 +171,18 @@ function renderLeaderboard(){
       <div>${player.points}</div>
     `;
 
-    // Klick zum Bearbeiten oder Löschen
-    row.addEventListener("click", ()=>{
+    // Klick zum Bearbeiten oder Löschen (nur wenn Admin Menü offen)
+    row.addEventListener("click", () => {
       if(!adminVisible) return;
       const action = prompt("Bearbeiten (b) oder Löschen (d)?", "b");
       if(action === "b"){
         const newKills = parseInt(prompt("Neue Kills:", player.kills));
         const newWins = parseInt(prompt("Neue Wins:", player.wins));
-        if(!isNaN(newKills)) player.kills=newKills;
-        if(!isNaN(newWins)) player.wins=newWins;
+        if(!isNaN(newKills)) player.kills = newKills;
+        if(!isNaN(newWins)) player.wins = newWins;
       } else if(action === "d"){
         if(confirm(`Spieler ${player.name} wirklich löschen?`)){
-          players.splice(idx,1);
+          players.splice(idx, 1);
         }
       }
       updatePoints();
@@ -177,52 +191,22 @@ function renderLeaderboard(){
     leaderboard.appendChild(row);
   });
 }
-</script>
-  <h2>Leaderboard</h2>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+// Game-Wechsel Buttons
+game1Btn.addEventListener("click", () => {
+  currentGame = "Game 1";
+  gameTitle.textContent = "Srenox x Nasqooskampfziege - Game 1";
+  players = [];  // Clear current players
+  updatePoints();
+});
 
-  const firebaseConfig = {
-    apiKey: "DEINE_API_KEY",
-    authDomain: "DEIN-PROJEKT.firebaseapp.com",
-    databaseURL: "https://DEIN-PROJEKT.firebaseio.com",
-    projectId: "DEIN-PROJEKT-ID",
-    storageBucket: "DEIN-PROJEKT.appspot.com",
-    messagingSenderId: "XXXX",
-    appId: "XXXX"
-  };
+game2Btn.addEventListener("click", () => {
+  currentGame = "Game 2";
+  gameTitle.textContent = "Srenox x Nasqooskampfziege - Game 2";
+  players = [];  // Clear current players
+  updatePoints();
+});
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // Daten live auslesen
-  onValue(ref(db, 'leaderboard'), (snapshot) => {
-    const data = snapshot.val();
-    const list = document.getElementById("leaderboard");
-    list.innerHTML = "";
-
-    for (let key in data) {
-      const entry = data[key];
-      const li = document.createElement("li");
-      li.textContent = `${entry.name}: ${entry.score}`;
-      list.appendChild(li);
-    }
-  });
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
