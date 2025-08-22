@@ -2,69 +2,71 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Leaderboard Overlay</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  /* Hintergrund-Overlay für Admin-Popup */
-  #overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    z-index: 999;
+  /* Blauer Kasten breiter und mehr Padding */
+  #leaderboardContainer {
+    background-color: rgba(15, 17, 32, 0.8);
+    padding: 2.5rem; /* 40px */
+    border-radius: 1rem; /* 16px */
+    width: 900px;
+    color: white;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
   }
 </style>
 </head>
-<body class="flex items-center justify-center h-screen m-0 bg-[url('amar-runde2-1024x569.jpg')] bg-cover bg-center font-sans">
+<body class="flex items-center justify-center h-screen m-0 bg-[url('amar-runde2-1024x569.jpg')] bg-cover bg-center font-sans relative">
 
-<!-- Overlay für Admin-Menü -->
-<div id="overlay"></div>
+<!-- Overlay für Admin Menü -->
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); z-index:999;"></div>
 
-<!-- Admin Menü als zentriertes Popup -->
-<div id="adminMenu" class="hidden fixed top-1/2 left-1/2 w-[400px] max-w-[95vw] max-h-[90vh] overflow-y-auto -translate-x-1/2 -translate-y-1/2 bg-black/90 text-white rounded-lg p-6 z-100 shadow-lg">
+<!-- Admin Menü (zentrales Popup) -->
+<div id="adminMenu" class="hidden fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/90 text-white rounded-xl shadow-xl p-8 z-[1000] w-[400px] max-h-[80vh] overflow-y-auto">
   <h2 class="text-2xl font-bold mb-6 text-center">Admin Menü</h2>
 
-  <!-- Spielrunde Auswahl -->
-  <div class="mb-6 flex flex-wrap justify-center gap-3">
-    <button id="runde1Btn" class="bg-purple-700 hover:bg-purple-900 px-5 py-2 rounded font-semibold transition">Runde 1</button>
-    <button id="runde2Btn" class="bg-purple-700 hover:bg-purple-900 px-5 py-2 rounded font-semibold transition">Runde 2</button>
-    <button id="runde3Btn" class="bg-purple-700 hover:bg-purple-900 px-5 py-2 rounded font-semibold transition">Runde 3</button>
-    <button id="finalBtn" class="bg-purple-700 hover:bg-purple-900 px-5 py-2 rounded font-semibold transition">Final Game</button>
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Aktuelle Runde</label>
+    <select id="gameRound" class="w-full p-2 rounded bg-gray-800 text-white">
+      <option value="Runde 1">Runde 1</option>
+      <option value="Runde 2">Runde 2</option>
+      <option value="Runde 3">Runde 3</option>
+      <option value="Final Game">Final Game</option>
+    </select>
   </div>
 
   <div class="mb-4">
-    <label for="pointsPerKill" class="block font-bold mb-1">Punkte pro Kill</label>
-    <input type="number" id="pointsPerKill" class="w-full p-2 rounded text-black" value="1" min="0">
+    <label class="block font-semibold mb-1">Punkte pro Kill</label>
+    <input type="number" id="pointsPerKill" class="w-full p-2 rounded bg-gray-800 text-white" value="1" min="0" />
   </div>
 
   <div class="mb-4">
-    <label for="pointsPerWin" class="block font-bold mb-1">Punkte pro Win</label>
-    <input type="number" id="pointsPerWin" class="w-full p-2 rounded text-black" value="2" min="0">
+    <label class="block font-semibold mb-1">Punkte pro Win</label>
+    <input type="number" id="pointsPerWin" class="w-full p-2 rounded bg-gray-800 text-white" value="2" min="0" />
   </div>
 
-  <div class="mb-6">
-    <label for="placementPoints" class="block font-bold mb-1">Punkte pro Platzierung (z.B. 1:10,2:8,3:6)</label>
-    <input type="text" id="placementPoints" class="w-full p-2 rounded text-black" value="1:10,2:8,3:6" placeholder="1:10,2:8,3:6">
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Punkte pro Platzierung (z.B. 1:10,2:8,3:6)</label>
+    <input type="text" id="placementPoints" class="w-full p-2 rounded bg-gray-800 text-white" value="1:10,2:8,3:6" />
   </div>
 
-  <form id="playerForm" class="space-y-3">
-    <input type="text" id="name" placeholder="Spielername" class="w-full p-2 rounded text-black" required>
-    <input type="text" id="flag" placeholder="Flaggen-URL (optional)" class="w-full p-2 rounded text-black">
-    <input type="number" id="kills" placeholder="Kills" class="w-full p-2 rounded text-black" min="0" required>
-    <input type="number" id="wins" placeholder="Wins" class="w-full p-2 rounded text-black" min="0" required>
-    <button type="submit" class="bg-purple-700 hover:bg-purple-900 px-4 py-2 rounded font-bold w-full">Spieler hinzufügen</button>
+  <form id="playerForm" class="space-y-3 mb-6">
+    <input type="text" id="name" placeholder="Spielername" class="w-full p-2 rounded bg-gray-800 text-white" required />
+    <input type="text" id="flag" placeholder="Flaggen-URL (optional)" class="w-full p-2 rounded bg-gray-800 text-white" />
+    <input type="number" id="kills" placeholder="Kills" class="w-full p-2 rounded bg-gray-800 text-white" required min="0" />
+    <input type="number" id="wins" placeholder="Wins" class="w-full p-2 rounded bg-gray-800 text-white" required min="0" />
+    <button type="submit" class="w-full bg-purple-700 hover:bg-purple-900 rounded py-2 font-bold transition-colors">Hinzufügen</button>
   </form>
 
-  <button id="closeAdmin" class="mt-6 w-full bg-red-600 hover:bg-red-800 px-4 py-2 rounded font-bold transition">Admin Menü schließen</button>
+  <button id="closeAdmin" class="w-full bg-red-600 hover:bg-red-800 rounded py-2 font-semibold transition-colors">Admin Menü schließen</button>
 </div>
 
 <!-- Leaderboard -->
-<div class="bg-[#0f1120]/80 text-white rounded-xl shadow-2xl p-6 w-[800px] max-w-full mx-4">
-  <h1 id="gameTitle" class="text-5xl font-extrabold text-center mb-4">Srenox x Nasqooskampfziege - Runde 1</h1>
+<div id="leaderboardContainer">
+  <h1 id="mainTitle" class="text-center font-extrabold mb-6" style="font-size:2rem;">Srenox x Nasqooskampfziege</h1>
 
   <!-- Header -->
-  <div class="grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 text-center font-bold text-lg mb-2">
+  <div class="grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 text-center font-bold text-lg mb-4">
     <div>Place</div>
     <div>Player</div>
     <div>Kills</div>
@@ -72,181 +74,183 @@
     <div>Points</div>
   </div>
 
-  <div id="leaderboard" class="space-y-2"></div>
+  <div id="leaderboard" class="space-y-3"></div>
 </div>
 
+<!-- Admin Menü öffnen Button unten rechts -->
+<button id="openAdminBtn" class="fixed bottom-5 right-5 bg-purple-700 hover:bg-purple-900 text-white font-semibold py-2 px-4 rounded shadow-lg z-50 transition-colors">
+  Admin Menü
+</button>
+
 <script>
-  // Elemente
-  const adminMenu = document.getElementById("adminMenu");
-  const overlay = document.getElementById("overlay");
-  const closeAdminBtn = document.getElementById("closeAdmin");
+const adminMenu = document.getElementById("adminMenu");
+const overlay = document.getElementById("overlay");
+const closeAdminBtn = document.getElementById("closeAdmin");
+const openAdminBtn = document.getElementById("openAdminBtn");
+const leaderboard = document.getElementById("leaderboard");
+const pointsPerKillInput = document.getElementById("pointsPerKill");
+const pointsPerWinInput = document.getElementById("pointsPerWin");
+const placementPointsInput = document.getElementById("placementPoints");
+const gameRoundSelect = document.getElementById("gameRound");
+const mainTitle = document.getElementById("mainTitle");
 
-  let adminVisible = false;
+let players = [];
+let pointsPerKill = parseInt(pointsPerKillInput.value) || 1;
+let pointsPerWin = parseInt(pointsPerWinInput.value) || 2;
+let placementPoints = {};
+let adminVisible = false;
 
-  // Admin Menü öffnen/schließen mit Shift+A+Q
-  document.addEventListener("keydown", e => {
-    if(e.shiftKey && e.key.toLowerCase() === "a") document._shiftA = true;
-    if(e.shiftKey && e.key.toLowerCase() === "q" && document._shiftA){
+// Toggle Admin Menü und Overlay
+function toggleAdminMenu(){
+  adminVisible = !adminVisible;
+  if(adminVisible){
+    adminMenu.classList.remove("hidden");
+    overlay.style.display = "block";
+    document.body.style.overflow = "hidden";
+  } else {
+    adminMenu.classList.add("hidden");
+    overlay.style.display = "none";
+    document.body.style.overflow = "";
+  }
+}
+
+// Admin Menü per Button öffnen/schließen
+openAdminBtn.addEventListener("click", toggleAdminMenu);
+closeAdminBtn.addEventListener("click", toggleAdminMenu);
+overlay.addEventListener("click", toggleAdminMenu);
+
+// Tastenkombination Shift + A + Q zum Öffnen/Schließen
+window.pressedKeys = new Set();
+document.addEventListener("keydown", e => {
+  if(e.shiftKey){
+    window.pressedKeys.add(e.key.toLowerCase());
+    if(window.pressedKeys.has("a") && window.pressedKeys.has("q")){
       toggleAdminMenu();
-      document._shiftA = false;
-    }
-  });
-  document.addEventListener("keyup", e => { if(e.key.toLowerCase() === "a") document._shiftA = false; });
-
-  // Overlay und Admin Menü toggeln
-  function toggleAdminMenu(){
-    adminVisible = !adminVisible;
-    if(adminVisible){
-      adminMenu.classList.remove("hidden");
-      overlay.style.display = "block";
-      document.body.style.overflow = "hidden"; // Scroll verhindern wenn offen
-    } else {
-      adminMenu.classList.add("hidden");
-      overlay.style.display = "none";
-      document.body.style.overflow = "";
     }
   }
+});
+document.addEventListener("keyup", e => {
+  window.pressedKeys.delete(e.key.toLowerCase());
+});
 
-  closeAdminBtn.addEventListener("click", toggleAdminMenu);
-  overlay.addEventListener("click", toggleAdminMenu);
-
-  // Spielrunde Buttons & Titel
-  const runde1Btn = document.getElementById("runde1Btn");
-  const runde2Btn = document.getElementById("runde2Btn");
-  const runde3Btn = document.getElementById("runde3Btn");
-  const finalBtn = document.getElementById("finalBtn");
-  const gameTitle = document.getElementById("gameTitle");
-
-  function changeRound(roundName) {
-    gameTitle.textContent = `Srenox x Nasqooskampfziege - ${roundName}`;
-  }
-
-  runde1Btn.addEventListener("click", () => changeRound("Runde 1"));
-  runde2Btn.addEventListener("click", () => changeRound("Runde 2"));
-  runde3Btn.addEventListener("click", () => changeRound("Runde 3"));
-  finalBtn.addEventListener("click", () => changeRound("Final Game"));
-
-  // Admin Inputs
-  const pointsPerKillInput = document.getElementById("pointsPerKill");
-  const pointsPerWinInput = document.getElementById("pointsPerWin");
-  const placementPointsInput = document.getElementById("placementPoints");
-  const form = document.getElementById("playerForm");
-  const leaderboard = document.getElementById("leaderboard");
-
-  let players = [];
-  let pointsPerKill = parseInt(pointsPerKillInput.value) || 1;
-  let pointsPerWin = parseInt(pointsPerWinInput.value) || 2;
-  let placementPoints = {};
-
-  function parsePlacementPoints(val) {
-    const obj = {};
-    val.split(",").forEach(item=>{
-      const [place, pts] = item.split(":").map(x=>parseInt(x));
-      if(!isNaN(place) && !isNaN(pts)) obj[place] = pts;
-    });
-    return obj;
-  }
-  placementPoints = parsePlacementPoints(placementPointsInput.value);
-
-  pointsPerKillInput.addEventListener("change", () => {
-    const val = parseInt(pointsPerKillInput.value);
-    if(!isNaN(val)) {
-      pointsPerKill = val;
-      updatePoints();
-    }
-  });
-
-  pointsPerWinInput.addEventListener("change", () => {
-    const val = parseInt(pointsPerWinInput.value);
-    if(!isNaN(val)) {
-      pointsPerWin = val;
-      updatePoints();
-    }
-  });
-
-  placementPointsInput.addEventListener("change", () => {
-    placementPoints = parsePlacementPoints(placementPointsInput.value);
+// Punkte pro Kill ändern
+pointsPerKillInput.addEventListener("change", ()=>{
+  const val = parseInt(pointsPerKillInput.value);
+  if(!isNaN(val) && val >= 0){
+    pointsPerKill = val;
     updatePoints();
-  });
-
-  // Spieler hinzufügen
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const flag = document.getElementById("flag").value.trim();
-    const kills = parseInt(document.getElementById("kills").value);
-    const wins = parseInt(document.getElementById("wins").value);
-
-    if(!name || isNaN(kills) || isNaN(wins)) return;
-
-    players.push({name, flag, kills, wins, points: 0});
-    updatePoints();
-    form.reset();
-  });
-
-  // Punkte berechnen
-  function updatePoints(){
-    players.forEach(p => {
-      p.points = (p.kills * pointsPerKill) + (p.wins * pointsPerWin);
-    });
-
-    players.sort((a,b) => b.points - a.points);
-
-    players.forEach((p, i) => p.placement = i + 1);
-
-    players.forEach(p => {
-      const placePts = placementPoints[p.placement] || 0;
-      p.points += placePts;
-    });
-
-    renderLeaderboard();
   }
+});
 
-  // Leaderboard rendern
-  function renderLeaderboard(){
-    leaderboard.innerHTML = "";
-    players.forEach((player, idx) => {
-      const row = document.createElement("div");
-      row.className = "grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 items-center bg-[#2d2d44] rounded-lg px-3 py-2 text-center";
-      
-      // Platz
-      const placeDiv = document.createElement("div");
-      placeDiv.textContent = player.placement;
-      row.appendChild(placeDiv);
+// Punkte pro Win ändern
+pointsPerWinInput.addEventListener("change", ()=>{
+  const val = parseInt(pointsPerWinInput.value);
+  if(!isNaN(val) && val >= 0){
+    pointsPerWin = val;
+    updatePoints();
+  }
+});
 
-      // Spielername + Flagge falls gesetzt
-      const playerDiv = document.createElement("div");
-      playerDiv.className = "flex items-center justify-center gap-2";
-      if(player.flag){
-        const img = document.createElement("img");
-        img.src = player.flag;
-        img.alt = "Flag";
-        img.className = "w-6 h-4 object-cover rounded-sm";
-        playerDiv.appendChild(img);
+// Platzierungspunkte ändern
+placementPointsInput.addEventListener("change", ()=>{
+  const val = placementPointsInput.value;
+  placementPoints = {};
+  val.split(",").forEach(item=>{
+    const [place, pts] = item.split(":").map(x=>parseInt(x));
+    if(!isNaN(place) && !isNaN(pts)) placementPoints[place] = pts;
+  });
+  updatePoints();
+});
+
+// Runde wechseln - nur Titel anpassen
+gameRoundSelect.addEventListener("change", ()=>{
+  mainTitle.textContent = gameRoundSelect.value;
+});
+
+// Spieler hinzufügen
+document.getElementById("playerForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const flag = document.getElementById("flag").value.trim();
+  const kills = parseInt(document.getElementById("kills").value);
+  const wins = parseInt(document.getElementById("wins").value);
+
+  if(!name || isNaN(kills) || isNaN(wins)) return;
+
+  players.push({name, flag, kills, wins, points: 0});
+  updatePoints();
+  e.target.reset();
+});
+
+// Punkte berechnen
+function updatePoints(){
+  players.forEach(p=>{
+    p.points = (p.kills * pointsPerKill) + (p.wins * pointsPerWin);
+  });
+
+  // Sortieren nach Punkten (höchste zuerst)
+  players.sort((a,b)=>b.points - a.points);
+
+  // Platzierung vergeben
+  players.forEach((p,index)=>p.placement=index+1);
+
+  // Platzierungspunkte hinzufügen
+  players.forEach(p=>{
+    const placePts = placementPoints[p.placement] || 0;
+    p.points += placePts;
+  });
+
+  renderLeaderboard();
+}
+
+// Leaderboard rendern
+function renderLeaderboard(){
+  leaderboard.innerHTML = "";
+  players.forEach((player, idx)=>{
+    const row = document.createElement("div");
+    row.className = "grid grid-cols-[80px_1fr_80px_80px_80px] gap-4 items-center bg-[#2d2d44] rounded-lg px-3 py-2 text-center cursor-pointer";
+
+    // Farbe für Platz: Gold, Silber, Bronze, Rest Weiß
+    let color = "text-white";
+    if(player.placement === 1) color = "text-yellow-400";
+    else if(player.placement === 2) color = "text-gray-300";
+    else if(player.placement === 3) color = "text-orange-400";
+
+    const flagImg = player.flag ? `<img src="${player.flag}" alt="Flag" class="w-6 h-4 rounded-sm object-cover border-2 border-yellow-400" />` : "";
+
+    row.innerHTML = `
+      <div class="${color} font-bold text-xl">${player.placement}</div>
+      <div class="flex items-center justify-start gap-2 pl-2">
+        ${flagImg}
+        <span class="font-bold">${player.name}</span>
+      </div>
+      <div>${player.kills}</div>
+      <div>${player.wins}</div>
+      <div>${player.points}</div>
+    `;
+
+    // Klick zum Bearbeiten oder Löschen (nur wenn Admin Menü offen)
+    row.addEventListener("click", ()=>{
+      if(!adminVisible) return;
+      const action = prompt("Bearbeiten (b) oder Löschen (d)?", "b");
+      if(action === "b"){
+        const newKills = parseInt(prompt("Neue Kills:", player.kills));
+        const newWins = parseInt(prompt("Neue Wins:", player.wins));
+        if(!isNaN(newKills)) player.kills = newKills;
+        if(!isNaN(newWins)) player.wins = newWins;
+        updatePoints();
+      } else if(action === "d"){
+        if(confirm(`Spieler ${player.name} wirklich löschen?`)){
+          players.splice(idx,1);
+          updatePoints();
+        }
       }
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = player.name;
-      playerDiv.appendChild(nameSpan);
-      row.appendChild(playerDiv);
-
-      // Kills
-      const killsDiv = document.createElement("div");
-      killsDiv.textContent = player.kills;
-      row.appendChild(killsDiv);
-
-      // Wins
-      const winsDiv = document.createElement("div");
-      winsDiv.textContent = player.wins;
-      row.appendChild(winsDiv);
-
-      // Punkte
-      const pointsDiv = document.createElement("div");
-      pointsDiv.textContent = player.points;
-      row.appendChild(pointsDiv);
-
-      leaderboard.appendChild(row);
     });
-  }
+
+    leaderboard.appendChild(row);
+  });
+}
+
 </script>
 </body>
 </html>
